@@ -5,7 +5,8 @@ import * as path from "node:path";
 import { DatabaseModule } from './database/database.module';
 import {ConfigProvider} from "./app.config.provider";
 import { FilmsProvider } from './films/films.provider';
-import { FilmsRepository } from './repository/films.repository';
+import { FilmsRepositoryMongo } from './repository/films.repository_Mongo';
+import { FilmsRepositoryPostgres } from './repository/films.repository_Postgres';
 import { FilmsService } from './films/films.service';
 import { OrderService } from './order/order.service';
 import { FilmsController } from './films/films.controller';
@@ -27,9 +28,10 @@ import { OrderController } from './order/order.controller';
   providers: [
     ConfigProvider,
     FilmsProvider,
-    FilmsRepository,
+    FilmsRepositoryMongo,
+    FilmsRepositoryPostgres,
     FilmsService,
     OrderService
-  ],
+  ]
 })
 export class AppModule {}

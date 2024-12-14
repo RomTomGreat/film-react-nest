@@ -1,5 +1,4 @@
 import { Document } from 'mongoose';
-
 import { SchemaFactory, Prop, Schema } from '@nestjs/mongoose';
 
 @Schema()
