@@ -27,7 +27,7 @@ export class FilmsRepositoryMongo {
 
     async findAllFilms(): Promise<{ total: number; items: GetFilmDto[] }> {
         const films = await this.filmRepository.find({});
-        const total = await this.filmRepository.countDocuments({});
+        const total = films.length;
         return {total, items: films.map(this.getFilm())};
     }
 
