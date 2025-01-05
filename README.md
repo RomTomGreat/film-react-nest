@@ -1,12 +1,18 @@
 # FILM!
 
+#### Проект FILM представляет из себя онлайн-сервис бронирования билетов в кинотеатр.
+#### Технические особенности: просмотр списка фильмов, ознакомление с конкретным фильмом и его сеансами, просмотр карты мест в зале, выбор интересующих мест и оформление заказа.
+#### Используемый стек: `HTML`, `SCSS`, `JavaScript`, `TypeScript`, `React`, `Jest`, `Node`, `Nest`, `PostgreSQL`, `Docker`.
+
 ## Установка
 
-### MongoDB
+### Postgres
 
-Установите MongoDB скачав дистрибутив с официального сайта или с помощью пакетного менеджера вашей ОС. Также можно воспользоваться Docker (см. ветку `feat/docker`.
-
-Выполните скрипт `test/mongodb_initial_stub.js` в консоли `mongo`.
+Установите СУБД PostgreSQL и запустить её (можно воспользоваться запуском СУБД в Docker). Подключившись от лица супер-пользователя postgres создайте отдельного пользователя.
+Используйте заготовки запросов для заполнения СУБД тестовыми данными фильмов и заказов, эти файлы находятся в проекте:
+`backend/test/prac.init.sql` — создаёт БД и таблицы;
+`backend/test/prac.films.sql` — заполняет таблицу фильмами;
+`backend/test/prac.shedules.sql` — заполняет таблицу расписанием сеансов.
 
 ### Бэкенд
 
@@ -14,23 +20,63 @@
 
 `cd backend`
 
-Установите зависимости (точно такие же, как в package-lock.json) помощью команд
+Установите зависимости:
 
-`npm ci` или `yarn install --frozen-lockfile`
+`npm install`
 
-Создайте `.env` файл из примера `.env.example`, в нём укажите:
+Создайте `.env` файл из примера `.env.example`.
 
-* `DATABASE_DRIVER` - тип драйвера СУБД - в нашем случае это `mongodb` 
-* `DATABASE_URL` - адрес СУБД MongoDB, например `mongodb://127.0.0.1:27017/practicum`.  
-
-MongoDB должна быть установлена и запущена.
+СУБД должна быть установлена и запущена.
 
 Запустите бэкенд:
 
-`npm start:debug`
+`npm start:dev`
 
-Для проверки отправьте тестовый запрос с помощью Postman или `curl`.
+#### Приложение доступно на http://localhost:3000/
 
+### Фронтенд
 
+Перейдите в папку с исходным кодом фронтенд
 
+`cd frontend`
 
+Создайте `.env` файл из примера `.env.example`.
+
+Установите зависимости
+
+`npm install`
+
+Запустите фронтенд:
+
+`npm run dev`
+
+#### Приложение доступно на http://localhost:5173/
+
+## Запуск в Docker (СУБД PostgreSQL)
+
+`backend/`
+Создайте `.env` файл из примера `.env.example`
+
+`frontend/`
+Создайте `.env` файл из примера `.env.example`
+
+Установите зависимости в `FILM-REACT-NEST/backend/`, `FILM-REACT-NEST/frontend/`
+
+`npm install`
+
+Запускаем Docker-compose через команду:
+
+`docker compose up -d --build`
+
+Через PGAdmin (http://localhost:8080/) авторизуйтесь, используя (email, password из `.env`).
+Создайте сервер и настройте его Connection (Host, Maintenance database, Username, Password из `.env ` по маршруту `FILM-REACT-NEST/backend/`).
+После наполните базу данными из директории проекта:
+`backend/test/prac.init.sql` — создаёт БД и таблицы;
+`backend/test/prac.films.sql` — заполняет таблицу фильмами;
+`backend/test/prac.shedules.sql` — заполняет таблицу расписанием сеансов.
+
+#### Приложение доступно на http://localhost/
+
+Настроен удаленный сервер, прикреплено доменное имя https://RomTomGreat.students.nomorepartiesco.ru/
+
+**_Проект выполнен в рамках практической работы учебного курса Яндекс.Практикум._**

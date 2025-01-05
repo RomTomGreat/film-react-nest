@@ -1,6 +1,6 @@
 import { IsString, IsNumber } from 'class-validator';
 
-class GetTicketDto {
+export class GetTicketDto {
     @IsString()
     film: string;
     @IsString()
@@ -19,15 +19,6 @@ class GetTicketDto {
     price: number;
 }
 
-class PlaceTicketDto {
-    @IsString()
-    filmId: string;
-    @IsString()
-    sessionId: string;
-    @IsString()
-    seatsSelection: string;
-}
-
 class ContactsDto {
     @IsString()
     email: string;
@@ -37,16 +28,4 @@ class ContactsDto {
 
 export class CreateOrderDto extends ContactsDto {
     tickets: GetTicketDto[];
-
-    public get getOrderData() {
-        const request: PlaceTicketDto[] = [];
-        this.tickets.forEach((ticket) => {
-            const order = {} as PlaceTicketDto;
-            order.filmId = ticket.film;
-            order.sessionId = ticket.session;
-            order.seatsSelection = `${ticket.row}:${ticket.seat}`;
-            request.push(order);
-        });
-        return request;
-    }
 }

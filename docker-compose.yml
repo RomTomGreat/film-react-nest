@@ -1,0 +1,78 @@
+services:
+  frontend:
+    image: 'ghcr.io/romtomgreat/film-react-nest_frontend:latest'
+    container_name: frontend_container
+    build:
+      context: frontend
+      dockerfile: Dockerfile
+    env_file:
+      - frontend/.env
+    volumes:
+      - frontend_build:/app/dist
+
+  backend:
+    image: 'ghcr.io/romtomgreat/film-react-nest_backend:latest'
+    container_name: backend_container
+    build:
+      context: backend
+      dockerfile: Dockerfile
+    env_file:
+      - backend/.env
+    ports:
+      - 3000:3000
+    depends_on:
+      - database
+    networks:
+      - internal
+
+  database:
+    image: postgres:16.4
+    container_name: postgres_container
+    env_file:
+      - backend/.env
+    volumes:
+      - ./docker-init.sql:/docker-entrypoint-initdb.d/docker-init.sql
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    networks:
+      - internal
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin4_container
+    env_file:
+      - backend/.env
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    ports:
+      - 8080:80
+    depends_on:
+      - database
+    restart: always
+    networks:
+      - internal
+
+  nginx:
+    image: 'ghcr.io/romtomgreat/film-react-nest_nginx:latest'
+    container_name: nginx_container
+    build:
+      context: nginx
+      dockerfile: Dockerfile
+    volumes:
+      - frontend_build:/var/www
+    ports:
+      - 80:80
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - internal
+
+volumes:
+  db_data:
+  pgadmin-data:
+  frontend_build:
+
+networks:
+  internal:

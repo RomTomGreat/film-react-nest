@@ -1,20 +1,26 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { AppConfig } from '../app.config.provider';
-import { FilmsRepositoryMongo } from '../repository/films.repository_Mongo';
-import { FilmsRepositoryPostgres } from '../repository/films.repository_Postgres';
+import { Injectable } from '@nestjs/common';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Film } from './entities/film.entity';
+import { Schedule } from './entities/schedule.entity';
 
 @Injectable()
 export class FilmsService {
-    constructor(@Inject('CONFIG') private readonly config: AppConfig, private readonly filmRepositoryMongo: FilmsRepositoryMongo, private readonly filmRepositoryPostgres: FilmsRepositoryPostgres) {}
+    constructor(@InjectRepository(Film) private filmRepository: Repository<Film>) {}
 
-    async findAll() {
-        const repository = this.config.database.driver === 'mongodb' ? this.filmRepositoryMongo : this.filmRepositoryPostgres;
-        return repository.findAllFilms();
+    async findAll(): Promise<{ items: Film[]; total: number }> {
+        const [items, total] = await Promise.all([
+            this.filmRepository.find({ relations: { schedule: true } }),
+            this.filmRepository.count()
+        ]);
+        return { items, total };
     }
 
-    async findById(id: string) {
-        const repository = this.config.database.driver === 'mongodb' ? this.filmRepositoryMongo : this.filmRepositoryPostgres;
-        const result = await repository.findFilmById(id);
-        return { total: result.schedule.length, items: result.schedule };
+    async findById(id: string): Promise<{ items: Schedule[], total: number }> {
+        const result = await this.filmRepository.findOne({
+            where: { id: id },
+            relations: { schedule: true }
+        });
+        return { items: result.schedule, total: result.schedule.length };
     }
 }
