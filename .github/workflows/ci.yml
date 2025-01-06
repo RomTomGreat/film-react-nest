@@ -2,6 +2,7 @@ name: CI
 
 env:
   REGISTRY: ghcr.io
+  OWNER: '${{ github.repository_owner }}'
 
 on:
   push:
@@ -20,6 +21,12 @@ jobs:
       packages: write
       contents: write
     steps:
+      - name: Set Lower Case for Owner
+        run: /
+          echo "REPO=${{ env.OWNER }}" >> ${GITHUB_ENV}
+      - run: /
+          echo "repo ${REPO}"
+          
       - name: Checkout repository
         uses: actions/checkout@v4
 
