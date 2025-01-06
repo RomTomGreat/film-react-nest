@@ -1,8 +1,5 @@
 name: CI
 
-env:
-  REGISTRY: ghcr.io
-
 on:
   push:
     branches: ['main']
@@ -16,6 +13,15 @@ jobs:
       packages: write
       contents: write
     steps:
+      - name: Set Lower Case for Owner
+        run: /
+          echo "REPO=${OWNER,,}" >>${GITHUB_ENV}
+        env:
+          OWNER: '${{ github.repository_owner }}'
+
+      - run: /
+          echo "repo ${REPO}"
+          
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -28,7 +34,7 @@ jobs:
       - name: Login to the DockerHub
         uses: docker/login-action@v3
         with:
-          registry: ${{ env.REGISTRY }}
+          registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
@@ -38,7 +44,7 @@ jobs:
           context: ./backend
           file: ./backend/Dockerfile
           push: true
-          tags: ${{ env.REGISTRY }}/${{ github.repository }}/backend:latest
+          tags: ghcr.io/${{ github.repository }}/backend:latest
 
       - name: Build and push Front Docker image
         uses: docker/build-push-action@v6
@@ -46,7 +52,7 @@ jobs:
           context: ./frontend
           file: ./frontend/Dockerfile
           push: true
-          tags: ${{ env.REGISTRY }}/${{ github.repository }}/frontend:latest
+          tags: ghcr.io/${{ github.repository }}/frontend:latest
 
       - name: Build and push Nginx Docker image
         uses: docker/build-push-action@v6
@@ -54,4 +60,4 @@ jobs:
           context: ./nginx
           file: ./nginx/Dockerfile
           push: true
-          tags: ${{ env.REGISTRY }}/${{ github.repository }}/nginx:latest
+          tags: ghcr.io/${{ github.repository }}/nginx:latest
