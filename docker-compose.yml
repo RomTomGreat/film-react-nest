@@ -23,7 +23,7 @@ services:
     depends_on:
       - database
     networks:
-      - internal
+      - webnet
 
   database:
     image: postgres:16.4
@@ -36,7 +36,7 @@ services:
     ports:
       - 5432:5432
     networks:
-      - internal
+      - webnet
 
   pgadmin:
     image: dpage/pgadmin4
@@ -51,7 +51,7 @@ services:
       - database
     restart: always
     networks:
-      - internal
+      - webnet
 
   nginx:
     image: 'ghcr.io/romtomgreat/film-react-nest_nginx:latest'
@@ -61,13 +61,23 @@ services:
       dockerfile: Dockerfile
     volumes:
       - frontend_build:/var/www
+      - ./certbot/www/:/var/www/certbot/:ro
+      - ./certbot/conf/:/etc/letsencrypt/:ro
     ports:
       - 80:80
     depends_on:
       - frontend
       - backend
     networks:
-      - internal
+      - webnet
+
+  certbot:
+    image: certbot/certbot:latest
+    networks:
+      - webnet
+    volumes:
+      - ./certbot/www/:/var/www/certbot/:rw
+      - ./certbot/conf/:/etc/letsencrypt/:rw
 
 volumes:
   db_data:
@@ -75,4 +85,4 @@ volumes:
   frontend_build:
 
 networks:
-  internal:
+  webnet:
