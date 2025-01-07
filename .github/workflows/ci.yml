@@ -10,7 +10,7 @@ on:
       - review_2
   pull_request:
     branches:
-      - review_2
+      - main
 
 jobs: 
   build:
