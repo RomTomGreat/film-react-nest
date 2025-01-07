@@ -7,10 +7,8 @@ on:
   push:
     branches:
       - main
-      - review_2
   pull_request:
     branches:
-      - main
       - review_2
 
 jobs: 
@@ -51,7 +49,7 @@ jobs:
           context: ./backend
           file: ./backend/Dockerfile
           push: true
-          tags: '${{ env.REGISTRY }}/$${{ env.REPO }}/film-react-nest_backend:latest'
+          tags: '${{ env.REGISTRY }}/${{ env.OWNER_LC }}/film-react-nest_backend:latest'
 
       - name: Build and push Front Docker image
         uses: docker/build-push-action@v6
@@ -59,7 +57,7 @@ jobs:
           context: ./frontend
           file: ./frontend/Dockerfile
           push: true
-          tags: '${{ env.REGISTRY }}/${{ env.REPO }}/film-react-nest_frontend:latest'
+          tags: '${{ env.REGISTRY }}/${{ env.OWNER_LC }}/film-react-nest_frontend:latest'
 
       - name: Build and push Nginx Docker image
         uses: docker/build-push-action@v6
@@ -67,4 +65,4 @@ jobs:
           context: ./nginx
           file: ./nginx/Dockerfile
           push: true
-          tags: '${{ env.REGISTRY }}/${{ env.REPO }}/film-react-nest_nginx:latest'
+          tags: '${{ env.REGISTRY }}/${{ env.OWNER_LC }}/film-react-nest_nginx:latest'
