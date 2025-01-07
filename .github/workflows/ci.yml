@@ -7,6 +7,7 @@ on:
   push:
     branches:
       - main
+      - review_2
   pull_request:
     branches:
       - review_2
