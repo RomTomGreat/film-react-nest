@@ -75,8 +75,6 @@
 `backend/test/prac.films.sql` — заполняет таблицу фильмами;
 `backend/test/prac.shedules.sql` — заполняет таблицу расписанием сеансов.
 
-#### Приложение доступно на http://localhost/
-
-Настроен удаленный сервер, прикреплено доменное имя https://RomTomGreat.students.nomorepartiesco.ru/
+Настроен удаленный сервер, прикреплено доменное имя https://romtomgreat.nomorepartiesco.ru/
 
 **_Проект выполнен в рамках практической работы учебного курса Яндекс.Практикум._**

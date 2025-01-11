@@ -65,19 +65,21 @@ services:
       - ./certbot/conf/:/etc/letsencrypt/:ro
     ports:
       - 80:80
+      - 443:443
     depends_on:
       - frontend
       - backend
+    restart: always
     networks:
       - webnet
 
   certbot:
     image: certbot/certbot:latest
-    networks:
-      - webnet
     volumes:
       - ./certbot/www/:/var/www/certbot/:rw
       - ./certbot/conf/:/etc/letsencrypt/:rw
+    networks:
+      - webnet
 
 volumes:
   db_data:
