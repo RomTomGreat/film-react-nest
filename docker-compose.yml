@@ -54,12 +54,10 @@ services:
       - webnet
 
   nginx:
-    image: 'ghcr.io/romtomgreat/film-react-nest_nginx:latest'
+    image: nginx
     container_name: nginx_container
-    build:
-      context: nginx
-      dockerfile: Dockerfile
     volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
       - frontend_build:/var/www
       - ./certbot/www/:/var/www/certbot/:ro
       - ./certbot/conf/:/etc/letsencrypt/:ro
