@@ -2,9 +2,9 @@ import { IsArray, IsNumber, IsString, Max, Min } from "class-validator";
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Schedule } from "./schedule.entity";
 
-@Entity()
+@Entity({ name: 'films' })
 export class Film {
-    @PrimaryGeneratedColumn()
+    @PrimaryGeneratedColumn('uuid')
     id: string;
 
     @Column()
