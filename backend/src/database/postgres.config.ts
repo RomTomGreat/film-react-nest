@@ -1,8 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { TypeOrmModuleOptions, TypeOrmOptionsFactory } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
-import { Film } from '../films/entities/film.entity';
-import { Schedule } from '../films/entities/schedule.entity';
 
 @Injectable()
 export class PostgresConfig implements TypeOrmOptionsFactory {
@@ -15,8 +13,8 @@ export class PostgresConfig implements TypeOrmOptionsFactory {
             username: this.configService.get<string>('DB_USERNAME', process.env.POSTGRES_USER),
             password: this.configService.get<string>('DB_PASSWORD', process.env.POSTGRES_PASSWORD),
             database: this.configService.get<string>('DB_DATABASE', process.env.POSTGRES_DB),
-            entities: [Film, Schedule],
-            synchronize: false
-        }
+            entities: [__dirname + '/../**/*.entity{.js,.ts}'],
+            synchronize: true
+        };
     }
 };
