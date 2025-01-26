@@ -11,7 +11,8 @@ import { OrderModule } from './order/order.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      cache: true
+      cache: true,
+      envFilePath: '.env'
     }),
     ServeStaticModule.forRoot({
       rootPath: path.join(__dirname, '..', 'public'),

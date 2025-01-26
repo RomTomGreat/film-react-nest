@@ -1,33 +1,25 @@
 services:
-  database:
-    image: postgres:16.4
+  postgres:
+    image: postgres:14.8-alpine3.18
     container_name: postgres
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_PORT: ${POSTGRES_PORT}
-      DB_NAME: ${DB_NAME}
-      DB_USER: ${DB_USER}
-      DB_PASSWORD: ${DB_PASSWORD}
+    env_file:
+      - backend/.env
     volumes:
       - db_data:/var/lib/postgresql/data
       - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
-    ports:
-      - '5432:5432'
     networks:
       - webnet
+    restart: unless-stopped
 
   pgadmin:
-    image: dpage/pgadmin4
+    image: dpage/pgadmin4:7.2
     container_name: pgadmin4
-    environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+    env_file:
+      - backend/.env
     volumes:
       - pgadmin-data:/var/lib/pgadmin
     ports:
-      - '8080:80'
+      - 8080:80
     restart: always
     networks:
       - webnet
@@ -36,36 +28,32 @@ services:
     image: 'ghcr.io/romtomgreat/film-react-nest_frontend:latest'
     container_name: frontend
     environment:
-      VITE_API_URL: /api/afisha
-      VITE_CDN_URL: /content/afisha
+      VITE_API_URL: http://romtomgreat.nomorepartiesco.ru/api/afisha
+      VITE_CDN_URL: http://romtomgreat.nomorepartiesco.ru/content/afisha
     volumes:
       - frontend_build:/app/dist
+    networks:
+      - webnet
 
   backend:
     image: 'ghcr.io/romtomgreat/film-react-nest_backend:latest'
     container_name: backend
-    environment:
-      DEBUG: ${DEBUG}
-      DATABASE_DRIVER: ${DATABASE_DRIVER}
-      DATABASE_URL: 'postgres://database:5432/${DB_NAME}'
-      DATABASE_USERNAME: ${DB_USER}
-      DATABASE_PASSWORD: ${DB_PASSWORD}
-    ports:
-      - '3000:3000'
+    env_file:
+      - backend/.env
     depends_on:
-      - database
+      - postgres
     networks:
       - webnet
 
   nginx:
-    image: nginx:latest
+    image: nginx
     container_name: nginx
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
       - frontend_build:/var/www/frontend:ro
     ports:
-      - '81:80'
-      - '443:443'
+      - 80:80
+      - 443:443
     depends_on:
       - frontend
       - backend
