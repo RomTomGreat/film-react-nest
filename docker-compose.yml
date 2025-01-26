@@ -14,7 +14,7 @@ services:
       - db_data:/var/lib/postgresql/data
       - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
     ports:
-      - '5432:5432'
+      - 5432:5432
     networks:
       - webnet
 
@@ -27,7 +27,7 @@ services:
     volumes:
       - pgadmin-data:/var/lib/pgadmin
     ports:
-      - '8080:80'
+      - 8080:80
     restart: always
     networks:
       - webnet
@@ -51,13 +51,14 @@ services:
       context: backend
       dockerfile: Dockerfile
     environment:
+      PORT: 3000
       DEBUG: ${DEBUG}
       DATABASE_DRIVER: ${DATABASE_DRIVER}
       DATABASE_URL: 'postgres://database:5432/${DB_NAME}'
       DATABASE_USERNAME: ${DB_USER}
       DATABASE_PASSWORD: ${DB_PASSWORD}
     ports:
-      - '3000:3000'
+      - 3000:3000
     depends_on:
       - database
     networks:
@@ -67,11 +68,10 @@ services:
     image: nginx:latest
     container_name: nginx
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-      - frontend_build:/var/www/frontend:ro
+      - frontend_build:/var/www
     ports:
-      - '81:80'
-      - '443:443'
+      - 80:80
+      - 443:443
     depends_on:
       - frontend
       - backend
