@@ -7,6 +7,8 @@ services:
     volumes:
       - db_data:/var/lib/postgresql/data
       - ./docker-init.sql:/docker-entrypoint-initdb.d/docker-init.sql
+    ports:
+      - 5432:5432
     networks:
       - webnet
     restart: unless-stopped
@@ -27,9 +29,8 @@ services:
   frontend:
     image: 'ghcr.io/romtomgreat/film-react-nest_frontend:latest'
     container_name: frontend
-    environment:
-      VITE_API_URL: http://romtomgreat.nomorepartiesco.ru/api/afisha
-      VITE_CDN_URL: http://romtomgreat.nomorepartiesco.ru/content/afisha
+    env_file:
+      - frontend/.env
     volumes:
       - frontend_build:/app/dist
     networks:
@@ -40,6 +41,8 @@ services:
     container_name: backend
     env_file:
       - backend/.env
+    ports:
+      - 3000:3000
     depends_on:
       - postgres
     networks:

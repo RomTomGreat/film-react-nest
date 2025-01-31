@@ -27,7 +27,7 @@ services:
       - webnet
   
   frontend:
-    # image: 'ghcr.io/romtomgreat/film-react-nest_frontend:latest'
+    image: 'ghcr.io/romtomgreat/film-react-nest_frontend:latest'
     build:
       context: ./frontend
       dockerfile: Dockerfile
@@ -40,7 +40,7 @@ services:
       - webnet
 
   backend:
-    # image: 'ghcr.io/romtomgreat/film-react-nest_backend:latest'
+    image: 'ghcr.io/romtomgreat/film-react-nest_backend:latest'
     build:
       context: ./backend
       dockerfile: Dockerfile
