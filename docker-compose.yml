@@ -32,8 +32,9 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     container_name: frontend
-    env_file:
-      - frontend/.env
+    environment:
+      VITE_API_URL: http://localhost/api/afisha
+      VITE_CDN_URL: http://localhost/content/afisha
     volumes:
       - frontend_build:/app/dist
     networks:
