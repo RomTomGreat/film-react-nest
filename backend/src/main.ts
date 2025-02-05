@@ -9,9 +9,9 @@ async function bootstrap() {
     bufferLogs: true
   });
   app.setGlobalPrefix('api/afisha');
-  app.enableCors();
+  app.enableCors({ origin: true, credentials: true });
   app.useLogger(new TskvLogger())
-  app.useGlobalPipes(new ValidationPipe({ transform: true }));
+  app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
   await app.listen(3000);
 }
 bootstrap();

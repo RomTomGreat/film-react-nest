@@ -12,19 +12,19 @@ import { OrderModule } from './order/order.module';
     ConfigModule.forRoot({
       isGlobal: true,
       cache: true,
-      envFilePath: '.env'
+      envFilePath: '.env',
     }),
     ServeStaticModule.forRoot({
       rootPath: path.join(__dirname, '..', 'public'),
-      renderPath: '/content/afisha/'
+      renderPath: '/content/afisha/',
     }),
     TypeOrmModule.forRootAsync({
       useClass: PostgresConfig,
-      inject: [PostgresConfig]
+      inject: [PostgresConfig],
     }),
     FilmsModule,
-    OrderModule
-  ]
+    OrderModule,
+  ],
 })
 
 export class AppModule {}
