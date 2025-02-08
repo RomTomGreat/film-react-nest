@@ -1,17 +1,16 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import 'dotenv/config';
 import { ValidationPipe } from '@nestjs/common';
 import { TskvLogger } from './logger/tskv.logger';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, {
-    bufferLogs: true
-  });
+  const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('api/afisha');
   app.enableCors({ origin: true, credentials: true });
-  app.useLogger(new TskvLogger())
+  app.useLogger(new TskvLogger());
   app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
-  await app.listen(3000);
+
+
+  await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();
