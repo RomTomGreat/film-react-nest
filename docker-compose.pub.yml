@@ -1,9 +1,12 @@
 services:
   postgres:
-    image: postgres:14.8-alpine3.18
+    image: postgres:16.4
     container_name: postgres
-    env_file:
-      - backend/.env
+    environment:
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_PORT: ${POSTGRES_PORT}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - db_data:/var/lib/postgresql/data
       - ./docker-init.sql:/docker-entrypoint-initdb.d/docker-init.sql
@@ -16,8 +19,9 @@ services:
   pgadmin:
     image: dpage/pgadmin4:7.2
     container_name: pgadmin4
-    env_file:
-      - backend/.env
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
     volumes:
       - pgadmin-data:/var/lib/pgadmin
     ports:
@@ -40,8 +44,13 @@ services:
   backend:
     image: 'ghcr.io/romtomgreat/film-react-nest_backend:latest'
     container_name: backend
-    env_file:
-      - backend/.env
+    environment:
+      PORT: 3000
+      DEBUG: ${DEBUG}
+      DATABASE_DRIVER: 'postgres'
+      DATABASE_URL: 'postgres://postgres:5432/films'
+      DATABASE_USERNAME: ${POSTGRES_USER}
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - 3000:3000
     depends_on:
