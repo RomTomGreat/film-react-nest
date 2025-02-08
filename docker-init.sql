@@ -1,4 +1,7 @@
-\connect films
+create database films WITH 
+    owner postgres;
+
+\c films;
 --
 -- PostgreSQL database dump
 --
