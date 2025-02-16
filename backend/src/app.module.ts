@@ -7,8 +7,6 @@ import { PostgresConfig } from './database/postgres.config';
 import { FilmsModule } from './films/films.module';
 import { OrderModule } from './order/order.module';
 
-
-
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -29,4 +27,3 @@ import { OrderModule } from './order/order.module';
   ],
 })
 export class AppModule {}
-

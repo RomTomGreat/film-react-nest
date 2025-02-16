@@ -9,8 +9,7 @@ async function bootstrap() {
   app.enableCors({ origin: true, credentials: true });
   app.useLogger(new TskvLogger());
   app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
-
-
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(3000);
 }
+
 bootstrap();
