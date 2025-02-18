@@ -30,8 +30,8 @@ services:
     image: 'ghcr.io/romtomgreat/film-react-nest_frontend:latest'
     container_name: frontend
     environment:
-      VITE_API_URL: http://romtomgreat.nomorepartiesco.ru/api/afisha
-      VITE_CDN_URL: http://romtomgreat.nomorepartiesco.ru/content/afisha
+      VITE_API_URL: https://romtomgreat.nomorepartiesco.ru/api/afisha
+      VITE_CDN_URL: https://romtomgreat.nomorepartiesco.ru/content/afisha
     volumes:
       - frontend_build:/app/dist
     networks:

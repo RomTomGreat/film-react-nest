@@ -9,7 +9,7 @@ import { InternalServerError } from '../errors/internal_server_error';
 
 @Injectable()
 export class OrderService {
-    constructor(@InjectRepository(Film) private filmRepository: Repository<Film>) {}
+    constructor(@InjectRepository(Film) private readonly filmRepository: Repository<Film>) {}
     
     private async getSessionData(id: string, sessionId: string) {
         try {
@@ -39,7 +39,7 @@ export class OrderService {
         if (previousData === '{}') {
             newData = `{${seats}}`;
         } else {
-            newData = `${previousData.slice(0, -1)},${seats}}`;
+            newData = `{${previousData.slice(0, -1)},${seats}}`;
         }
         film.schedule[sessionIndex].taken = newData;
     
