@@ -62,12 +62,11 @@ export class OrderService {
         }
 
         if (availableTicket.length > 0) {
-            availableTicket.forEach((ticket) => {
-                const { filmId, sessionId, seatsSelection } = ticket;
-                this.placeSeatsOrder(filmId, sessionId, seatsSelection);
-            });
+            for (const ticket of availableTicket) {
+                const { id, sessionId, seatPoint } = ticket;
+                await this.placeSeatsOrder(id, sessionId, seatPoint);
+            }
         }
-
         return { items: orderData.tickets, total: orderData.tickets.length };
     }
 }
