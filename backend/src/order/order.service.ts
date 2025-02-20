@@ -10,7 +10,7 @@ import { InternalServerError } from '../errors/internal_server_error';
 @Injectable()
 export class OrderService {
     constructor(@InjectRepository(Film) private readonly filmRepository: Repository<Film>) {}
-    
+
     private async getSessionData(id: string, sessionId: string) {
         try {
             const film = await this.filmRepository.findOne({
@@ -31,9 +31,15 @@ export class OrderService {
             where: { id: id },
             relations: { schedule: true },
         });
-        const sessionIndex = film.schedule.findIndex((session) => {
-            return session.id === sessionId;
-        });
+        if (!film) {
+            throw new NotFoundError(id);
+        }
+
+        const sessionIndex = film.schedule.findIndex((session) => session.id === sessionId);
+        if (sessionIndex === -1) {
+            throw new NotFoundError(sessionId);
+        }
+
         const previousData = film.schedule[sessionIndex].taken;
         let newData: string;
         if (previousData === '{}') {
@@ -42,12 +48,11 @@ export class OrderService {
             newData = `{${previousData.slice(0, -1)},${seats}}`;
         }
         film.schedule[sessionIndex].taken = newData;
-    
+
         try {
             await this.filmRepository.save(film);
-            return;
         } catch (error) {
-            new InternalServerError('Неизвестная ошибка сервера');
+            throw new InternalServerError('Неизвестная ошибка сервера');
         }
     }
 
@@ -59,14 +64,16 @@ export class OrderService {
             if (sessionData.includes(seatPoint)) {
                 throw new SeatOccupiedError(seatPoint);
             }
-            availableTicket.push({id: order.film, sessionId: order.session, seatPoint: seatPoint});
+            availableTicket.push({ id: order.film, sessionId: order.session, seatPoint: seatPoint });
         }
+
         if (availableTicket.length > 0) {
-            availableTicket.forEach((ticket) => {
+            for (const ticket of availableTicket) {
                 const { id, sessionId, seatPoint } = ticket;
-                this.placeSeatsOrder(id, sessionId, seatPoint);
-            });
+                await this.placeSeatsOrder(id, sessionId, seatPoint);
+            }
         }
+
         return { items: orderData.tickets, total: orderData.tickets.length };
     }
 }
