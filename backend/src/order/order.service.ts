@@ -17,9 +17,7 @@ export class OrderService {
                 where: { id: id },
                 relations: { schedule: true },
             });
-            const sessionIndex = film.schedule.findIndex((session) => {
-                return session.id === sessionId;
-            });
+            const sessionIndex = film.schedule.findIndex((session) => (session.id === sessionId));
             return film.schedule[sessionIndex].taken;
         } catch (error) {
             throw new NotFoundError(sessionId);
@@ -41,18 +39,14 @@ export class OrderService {
         }
 
         const previousData = film.schedule[sessionIndex].taken;
-        let newData: string;
-        if (previousData === '{}') {
-            newData = `{${seats}}`;
-        } else {
-            newData = `{${previousData.slice(0, -1)},${seats}}`;
-        }
+        const newData = previousData.concat(seats);
         film.schedule[sessionIndex].taken = newData;
 
         try {
             await this.filmRepository.save(film);
+            return;
         } catch (error) {
-            throw new InternalServerError('Неизвестная ошибка сервера');
+            throw new InternalServerError(error);
         }
     }
 
@@ -68,10 +62,10 @@ export class OrderService {
         }
 
         if (availableTicket.length > 0) {
-            for (const ticket of availableTicket) {
-                const { id, sessionId, seatPoint } = ticket;
-                await this.placeSeatsOrder(id, sessionId, seatPoint);
-            }
+            availableTicket.forEach((ticket) => {
+                const { filmId, sessionId, seatsSelection } = ticket;
+                this.placeSeatsOrder(filmId, sessionId, seatsSelection);
+            });
         }
 
         return { items: orderData.tickets, total: orderData.tickets.length };
