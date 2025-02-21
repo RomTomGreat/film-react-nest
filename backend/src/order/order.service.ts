@@ -51,7 +51,7 @@ export class OrderService {
         }
     }
 
-    async placeOrder(orderData: CreateOrderDto): Promise<{ items: GetTicketDto[] | null; total: number }> {
+    async bookAnOrder(orderData: CreateOrderDto): Promise<{ items: GetTicketDto[] | null; total: number }> {
         const ticketsAvailableForPurchase = [];
 
         for (const ticket of orderData.tickets) {
