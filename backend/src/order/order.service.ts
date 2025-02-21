@@ -1,72 +1,80 @@
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Film } from '../films/entities/film.entity';
-import { Repository } from 'typeorm';
-import { CreateOrderDto, GetTicketDto } from './dto/order.dto';
 import { SeatOccupiedError } from '../errors/seat_occupied_error';
 import { NotFoundError } from '../errors/not_found_error';
 import { InternalServerError } from '../errors/internal_server_error';
+import { Injectable } from '@nestjs/common';
+import { CreateOrderDto, GetTicketDto } from './dto/order.dto';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Film } from '../films/entities/film.entity';
 
 @Injectable()
 export class OrderService {
-    constructor(@InjectRepository(Film) private readonly filmRepository: Repository<Film>) {}
+    constructor(@InjectRepository(Film) private readonly filmDatabase: Repository<Film>) {}
 
-    private async getSessionData(id: string, sessionId: string) {
+    private async getSessionData(filmId: string, sessionId: string) {
         try {
-            const film = await this.filmRepository.findOne({
-                where: { id: id },
+            const film = await this.filmDatabase.findOne({
+                where: { id: filmId },
                 relations: { schedule: true },
             });
-            const sessionIndex = film.schedule.findIndex((session) => (session.id === sessionId));
+            const sessionIndex = film.schedule.findIndex((session) => {
+                return session.id === sessionId;
+            });
             return film.schedule[sessionIndex].taken;
         } catch (error) {
             throw new NotFoundError(sessionId);
         }
     }
 
-    private async placeSeatsOrder(id: string, sessionId: string, seats: string) {
-        const film = await this.filmRepository.findOne({
-            where: { id: id },
+    private async placeSeatsOrder(filmId: string, sessionId: string, seats: string) {
+        const film = await this.filmDatabase.findOne({
+            where: { id: filmId },
             relations: { schedule: true },
         });
-        if (!film) {
-            throw new NotFoundError(id);
-        }
-
-        const sessionIndex = film.schedule.findIndex((session) => session.id === sessionId);
-        if (sessionIndex === -1) {
-            throw new NotFoundError(sessionId);
-        }
-
+        const sessionIndex = film.schedule.findIndex((session) => {
+            return session.id === sessionId;
+        });
         const previousData = film.schedule[sessionIndex].taken;
-        const newData = previousData.concat(seats);
+        let newData: string;
+        if (previousData === '{}') {
+            newData = `{${seats}}`;
+        } else {
+            newData = `${previousData.slice(0, -1)},${seats}}`;
+        }
         film.schedule[sessionIndex].taken = newData;
 
         try {
-            await this.filmRepository.save(film);
+            await this.filmDatabase.save(film);
             return;
         } catch (error) {
-            throw new InternalServerError(error);
+            new InternalServerError('Неизвестная ошибка сервера');
         }
     }
 
-    async bookAnOrder(orderData: CreateOrderDto): Promise<{ items: GetTicketDto[] | null, total: number }> {
-        const availableTicket = [];
-        for (const order of orderData.tickets) {
-            const sessionData = await this.getSessionData(order.film, order.session);
-            const seatPoint = `${order.row}:${order.seat}`;
-            if (sessionData.includes(seatPoint)) {
-                throw new SeatOccupiedError(seatPoint);
+    async placeOrder(orderData: CreateOrderDto): Promise<{ items: GetTicketDto[] | null; total: number }> {
+        const ticketsAvailableForPurchase = [];
+
+        for (const ticket of orderData.tickets) {
+            const sessionData = await this.getSessionData(ticket.film, ticket.session);
+            console.log(sessionData);
+            const seatsSelection = `${ticket.row}:${ticket.seat}`;
+            if (sessionData.includes(seatsSelection)) {
+                throw new SeatOccupiedError(seatsSelection);
             }
-            availableTicket.push({ id: order.film, sessionId: order.session, seatPoint: seatPoint });
+
+            ticketsAvailableForPurchase.push({
+                filmId: ticket.film,
+                sessionId: ticket.session,
+                seatsSelection: seatsSelection,
+            });
+        }
+        if (ticketsAvailableForPurchase.length > 0) {
+            ticketsAvailableForPurchase.forEach((ticket) => {
+                const { filmId, sessionId, seatsSelection } = ticket;
+                this.placeSeatsOrder(filmId, sessionId, seatsSelection);
+            });
         }
 
-        if (availableTicket.length > 0) {
-            for (const ticket of availableTicket) {
-                const { id, sessionId, seatPoint } = ticket;
-                await this.placeSeatsOrder(id, sessionId, seatPoint);
-            }
-        }
         return { items: orderData.tickets, total: orderData.tickets.length };
     }
 }
