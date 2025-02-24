@@ -5,6 +5,7 @@ import { Film } from "./film.entity";
 @Entity({ name: 'schedule' })
 export class Schedule {
     @PrimaryGeneratedColumn('uuid')
+    @IsString()
     id: string;
 
     @Column()
@@ -27,9 +28,8 @@ export class Schedule {
     @IsNumber()
     price: number;
 
-    @Column({ type: 'text' })
-    @IsString()
-    taken: string;
+    @Column('simple-array', { default: '' })
+    taken: string[];
 
     @ManyToOne(() => Film, (film) => film.schedule)
     film: Film;
