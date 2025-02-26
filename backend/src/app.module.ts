@@ -22,8 +22,8 @@ import { OrderModule } from './order/order.module';
       useClass: PostgresConfig,
       inject: [PostgresConfig],
     }),
-    FilmsModule,
     OrderModule,
+    FilmsModule,
   ],
 })
 export class AppModule {}

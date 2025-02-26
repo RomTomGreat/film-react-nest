@@ -5,6 +5,7 @@ import { Schedule } from "./schedule.entity";
 @Entity({ name: 'films' })
 export class Film {
     @PrimaryGeneratedColumn('uuid')
+    @IsString()
     id: string;
 
     @Column()
@@ -15,7 +16,7 @@ export class Film {
     @IsString()
     director: string;
 
-    @Column('float')
+    @Column()
     @IsNumber()
     rating: number;
 

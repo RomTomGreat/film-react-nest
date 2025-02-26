@@ -29,6 +29,7 @@ export class Schedule {
     price: number;
 
     @Column({type: 'text' })
+    @IsString()
     taken: string;
 
     @ManyToOne(() => Film, (film) => film.schedule)

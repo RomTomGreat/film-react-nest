@@ -51,7 +51,7 @@ export class OrderService {
         }
     }
 
-    async bookAnOrder(orderData: CreateOrderDto): Promise<{ items: GetTicketDto[] | null, total: number }> {
+    async bookAnOrder(orderData: CreateOrderDto): Promise<{ items: GetTicketDto[] | null; total: number }> {
         const availableTicket = [];
         for (const order of orderData.tickets) {
             const sessionData = await this.getSessionData(order.film, order.session);
