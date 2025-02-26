@@ -8,7 +8,6 @@ export class OrderController {
 
     @Post()
     createOrder(@Body() order: CreateOrderDto) {
-        console.log('Received order:', order);
         return this.orderService.bookAnOrder(order);
     }
 }

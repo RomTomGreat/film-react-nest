@@ -1,4 +1,4 @@
-import { IsString, IsNumber } from 'class-validator';
+import { IsString, IsNumber, IsArray, IsEmail, IsPhoneNumber } from 'class-validator';
 
 export class GetTicketDto {
     @IsString()
@@ -20,12 +20,13 @@ export class GetTicketDto {
 }
 
 class ContactsDto {
-    @IsString()
+    @IsEmail()
     email: string;
-    @IsString()
+    @IsPhoneNumber()
     phone: string;
 }
 
 export class CreateOrderDto extends ContactsDto {
+    @IsArray()
     tickets: GetTicketDto[];
 }

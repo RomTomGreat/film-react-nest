@@ -9,12 +9,12 @@ import { InternalServerError } from '../errors/internal_server_error';
 
 @Injectable()
 export class OrderService {
-    constructor(@InjectRepository(Film) private filmRepository: Repository<Film>) {}
+    constructor(@InjectRepository(Film) private readonly filmRepository: Repository<Film>) {}
     
-    private async getSessionData(id: string, sessionId: string) {
+    private async getSessionData(filmId: string, sessionId: string) {
         try {
             const film = await this.filmRepository.findOne({
-                where: { id: id },
+                where: { id: filmId },
                 relations: { schedule: true },
             });
             const sessionIndex = film.schedule.findIndex((session) => {
@@ -26,20 +26,27 @@ export class OrderService {
         }
     }
 
-    private async placeSeatsOrder(id: string, sessionId: string, seats: string) {
+    private async placeSeatsOrder(filmId: string, sessionId: string, seats: string) {
         const film = await this.filmRepository.findOne({
-            where: { id: id },
+            where: { id: filmId },
             relations: { schedule: true },
         });
+        if (!film) {
+            throw new NotFoundError(filmId);
+        }
+        
         const sessionIndex = film.schedule.findIndex((session) => {
             return session.id === sessionId;
         });
+        if (sessionIndex === -1) {
+            throw new NotFoundError(sessionId);
+        }
         const previousData = film.schedule[sessionIndex].taken;
         let newData: string;
         if (previousData === '{}') {
             newData = `{${seats}}`;
         } else {
-            newData = `${previousData.slice(0, -1)},${seats}}`;
+            newData = `${previousData.slice(0, -1)},${seats}`;
         }
         film.schedule[sessionIndex].taken = newData;
     
@@ -52,6 +59,9 @@ export class OrderService {
     }
 
     async bookAnOrder(orderData: CreateOrderDto): Promise<{ items: GetTicketDto[] | null; total: number }> {
+        if (!Array.isArray(orderData.tickets)) {
+            throw new InternalServerError('Билет должен быть массивом');
+        }
         const availableTicket = [];
         for (const order of orderData.tickets) {
             const sessionData = await this.getSessionData(order.film, order.session);
@@ -59,13 +69,13 @@ export class OrderService {
             if (sessionData.includes(seatPoint)) {
                 throw new SeatOccupiedError(seatPoint);
             }
-            availableTicket.push({id: order.film, sessionId: order.session, seatPoint: seatPoint});
+            availableTicket.push({filmId: order.film, sessionId: order.session, seatPoint: seatPoint});
         }
         if (availableTicket.length > 0) {
-            availableTicket.forEach((ticket) => {
-                const { id, sessionId, seatPoint } = ticket;
-                this.placeSeatsOrder(id, sessionId, seatPoint);
-            });
+            await Promise.all(availableTicket.map(ticket => {
+                const { filmId, sessionId, seatPoint } = ticket;
+                return this.placeSeatsOrder(filmId, sessionId, seatPoint);
+            }));
         }
         return { items: orderData.tickets, total: orderData.tickets.length };
     }
