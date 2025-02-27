@@ -18,7 +18,7 @@ function App() {
 
     return (<>
         <Layout isLocked={!!state.modal}>
-           <Header counter={state.basket.length} onClick={handlers.handleOpenBasket} />
+            <Header counter={state.basket.length} onClick={handlers.handleOpenBasket} />
             {data.preview && <FilmPreview {...data.preview} onClick={handlers.handleOpenFilm}  /> }
             <FilmsGallery
                 items={state.films}

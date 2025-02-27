@@ -2,18 +2,15 @@ import { IsNumber, IsString } from "class-validator";
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Film } from "./film.entity";
 
-@Entity()
+@Entity({ name: 'schedule' })
 export class Schedule {
-    @PrimaryGeneratedColumn()
+    @PrimaryGeneratedColumn('uuid')
+    @IsString()
     id: string;
 
     @Column()
     @IsString()
     daytime: string;
-
-    @Column()
-    @IsString()
-    filmId: string;
 
     @Column()
     @IsNumber()
@@ -31,7 +28,7 @@ export class Schedule {
     @IsNumber()
     price: number;
 
-    @Column({ type: 'text' })
+    @Column({type: 'text' })
     @IsString()
     taken: string;
 

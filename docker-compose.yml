@@ -1,0 +1,84 @@
+services:
+  postgres:
+    image: postgres:16.4
+    container_name: postgres
+    env_file:
+      - backend/.env
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./docker-init.sql:/docker-entrypoint-initdb.d/docker-init.sql
+    ports:
+      - 5432:5432
+    networks:
+      - webnet
+    restart: unless-stopped
+
+  pgadmin:
+    image: dpage/pgadmin4:7.2
+    container_name: pgadmin4
+    env_file:
+      - backend/.env
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    ports:
+      - 8080:80
+    restart: always
+    networks:
+      - webnet
+
+  frontend:
+    image: 'ghcr.io/romtomgreat/film-react-nest_frontend:latest'
+    container_name: frontend
+    environment:
+      VITE_API_URL: https://romtomgreat.nomorepartiesco.ru/api/afisha
+      VITE_CDN_URL: https://romtomgreat.nomorepartiesco.ru/content/afisha
+    volumes:
+      - frontend_build:/app/dist
+    networks:
+      - webnet
+
+  backend:
+    image: 'ghcr.io/romtomgreat/film-react-nest_backend:latest'
+    container_name: backend
+    env_file:
+      - backend/.env
+    ports:
+      - 3000:3000
+    depends_on:
+      - postgres
+    networks:
+      - webnet
+
+  nginx:
+    image: nginx
+    container_name: nginx
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./certbot/www/:/var/www/certbot/:ro
+      - ./certbot/conf/:/etc/letsencrypt/:ro
+      - frontend_build:/var/www/frontend:ro
+    ports:
+      - 80:80
+      - 443:443
+    depends_on:
+      - frontend
+      - backend
+    restart: always
+    networks:
+      - webnet
+
+  certbot:
+    image: certbot/certbot:latest
+    networks:
+      - webnet
+    volumes:
+      - ./certbot/www/:/var/www/certbot/:rw
+      - ./certbot/conf/:/etc/letsencrypt/:rw
+
+volumes:
+  db_data:
+  pgadmin-data:
+  frontend_build:
+
+networks:
+  webnet:

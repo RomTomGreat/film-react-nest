@@ -1,10 +1,11 @@
-import { IsArray, IsNumber, IsString, Max, Min } from "class-validator";
+import { IsArray, IsNumber, IsString } from "class-validator";
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Schedule } from "./schedule.entity";
 
-@Entity()
+@Entity({ name: 'films' })
 export class Film {
-    @PrimaryGeneratedColumn()
+    @PrimaryGeneratedColumn('uuid')
+    @IsString()
     id: string;
 
     @Column()
@@ -17,8 +18,6 @@ export class Film {
 
     @Column()
     @IsNumber()
-    @Min(0)
-    @Max(10)
     rating: number;
 
     @Column('text', { array: true })
